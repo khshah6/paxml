@@ -21,7 +21,6 @@ python paxml/main.py \
     --job_log_dir=/tmp/jax_log_dir/exp01
 """
 
-import importlib
 import os
 import random
 import re
@@ -39,7 +38,7 @@ from jax.experimental.gda_serialization import serialization as gda_serializatio
 from paxml import base_experiment
 from paxml import checkpoints
 from paxml import eval_lib
-from paxml import experiment_registry
+from paxml import experiment_lib
 from paxml import setup_jax
 from paxml import train
 from paxml import trainer_lib
@@ -137,25 +136,6 @@ flags.DEFINE_integer(
     'is used')
 # Flags --jax_parallel_functions_output_gda, --jax_backend_target,
 # --jax_xla_backend, --jax_enable_checks are available through JAX.
-
-
-def _get_experiment(experiment_name: str) -> base_experiment.BaseExperimentT:
-  """Retrieves an experiment config from the global registry."""
-  experiment_class = experiment_registry.get(experiment_name)
-  if experiment_class is not None:
-    return experiment_class
-  # Try to import the module that registers the experiment, assuming the
-  # experiment name contains the full path.
-  module_name = experiment_name.rsplit('.', 1)[0]
-  # internal experiment module import code
-  try:
-    importlib.import_module(module_name)
-  except ModuleNotFoundError as e:
-    raise ValueError(f'Could not find experiment `{experiment_name}`.') from e
-  experiment_class = experiment_registry.get(experiment_name)
-  if experiment_class is not None:
-    return experiment_class
-  raise ValueError(f'Could not find experiment `{experiment_name}`.')
 
 
 def wait_with_random_jitter(min_secs: int, max_secs: int) -> None:
@@ -346,7 +326,7 @@ def main(argv: Sequence[str]) -> None:
                       FLAGS.jax_fully_async_checkpoint)
 
   if FLAGS.exp is not None:
-    experiment_config = _get_experiment(FLAGS.exp)()
+    experiment_config = experiment_lib.get_experiment(FLAGS.exp)()
   else:
     cfg = absl_flags.create_buildable_from_flags(
         module=None, allow_imports=True)

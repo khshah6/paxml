@@ -474,7 +474,7 @@ class TransformerLmSpmdAdafactor(base_experiment.BaseExperiment):
   FPROP_DTYPE = jnp.bfloat16
   PACKED_INPUT = True
 
-  USE_REPEATED_LAYER = False
+  USE_REPEATED_LAYER = True
   SEPARATE_EMBEDDING = False
   TRAINABLE_POSITION_EMB = False
   TRAINABLE_PE_MAX_SEQ_LEN = 16 * 1024

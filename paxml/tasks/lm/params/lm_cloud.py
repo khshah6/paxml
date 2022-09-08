@@ -186,11 +186,12 @@ class LmCloudSpmd32B(LmCloudSpmd):
 
   Global batch size = 4 * 4 * 4 * 8 = 512
   """
-  PERCORE_BATCH_SIZE = 8
+  PERCORE_BATCH_SIZE = 4
 
   NUM_LAYERS = 40
   MODEL_DIMS = 8192
   HIDDEN_DIMS = MODEL_DIMS * 4
+  USE_REPEATED_LAYER = True
 
   CHECKPOINT_POLICY = layers.AutodiffCheckpointType.SAVE_CONTEXT_AND_OUT_PROJ
   ICI_MESH_SHAPE = [1, 16, 4]

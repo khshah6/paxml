@@ -407,24 +407,25 @@ def _mkdir_path(name: str, tmp_dir: str) -> str:
 
 def delete_temp_directories(checkpoint_dir: str, overwrite: bool = False):
   """Deletes temporary checkpoint directories saved by GDA."""
-  if not overwrite and tf.io.gfile.exists(checkpoint_dir):
-    # Does not contain directory path, only dirname is returned.
-    checkpoint_dirnames = tf.io.gfile.listdir(checkpoint_dir)
-    # Delete tmp directories if any.
-    if jax.process_index() == 0:
-      tmp_checkpoint_dirnames = [
-          x for x in checkpoint_dirnames
-          if _is_tmp_checkpoint(checkpoint_dir, x)
-      ]
-      if tmp_checkpoint_dirnames:
-        logging.warn('Found incompletely saved checkpoints %s; deleting them',
-                     tmp_checkpoint_dirnames)
-        for x in tmp_checkpoint_dirnames:
-          tf.io.gfile.rmtree(os.path.join(checkpoint_dir, x))
-    # Note we must barrier across all processes after the tmp directory
-    # delete.
-    py_utils.sync_global_devices('Wait for checkpoint tmp dir deletions to '
-                                 'finish.')
+  return True;
+  # if not overwrite and tf.io.gfile.exists(checkpoint_dir):
+  #   # Does not contain directory path, only dirname is returned.
+  #   checkpoint_dirnames = tf.io.gfile.listdir(checkpoint_dir)
+  #   # Delete tmp directories if any.
+  #   if jax.process_index() == 0:
+  #     tmp_checkpoint_dirnames = [
+  #         x for x in checkpoint_dirnames
+  #         if _is_tmp_checkpoint(checkpoint_dir, x)
+  #     ]
+  #     if tmp_checkpoint_dirnames:
+  #       logging.warn('Found incompletely saved checkpoints %s; deleting them',
+  #                    tmp_checkpoint_dirnames)
+  #       for x in tmp_checkpoint_dirnames:
+  #         tf.io.gfile.rmtree(os.path.join(checkpoint_dir, x))
+  #   # Note we must barrier across all processes after the tmp directory
+  #   # delete.
+  #   py_utils.sync_global_devices('Wait for checkpoint tmp dir deletions to '
+  #                                'finish.')
 
 
 def _masked_node_to_none(mask: Any, value: Any) -> Any:

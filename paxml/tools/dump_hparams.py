@@ -32,7 +32,7 @@ from absl import flags
 from absl import logging
 import jax
 from paxml import base_experiment
-from paxml import experiment_registry
+from paxml import experiment_lib
 from praxis import base_hyperparams
 from praxis import base_layer
 import tensorflow.compat.v2 as tf
@@ -46,15 +46,6 @@ flags.DEFINE_string('post_init_params_ofile', None,
 FLAGS = flags.FLAGS
 BaseExperimentT = base_experiment.BaseExperimentT
 instantiate = base_layer.instantiate
-
-
-def _get_experiment(experiment_name: str) -> BaseExperimentT:
-  """Retrieves a experiment config from the global registry."""
-  experiment_class = experiment_registry.get(experiment_name)
-  if experiment_class is None:
-    raise ValueError(f'Could not find experiment `{experiment_name}`.')
-  return experiment_class
-
 
 def _write_post_init_model_hparams_file(model_param, filepath,
                                         input_specs) -> None:
@@ -92,7 +83,7 @@ def main(argv) -> None:
   del argv  # unused.
 
   logging.info('Dumping out params for experiment: %s', FLAGS.exp)
-  experiment_config = _get_experiment(FLAGS.exp)()
+  experiment_config = experiment_lib.get_experiment(FLAGS.exp)()
 
   with tf.io.gfile.GFile(FLAGS.params_ofile, 'w') as params_file:
     params_file.write('============= Trainer / Evaler datasets.\n\n')
